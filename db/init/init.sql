@@ -13,17 +13,6 @@ CREATE TABLE bonus (
     value_bonus SMALLINT
 );
 
--- Create table "players"
-CREATE TABLE players (
-    id_player INT AUTO_INCREMENT PRIMARY KEY,
-    name_player VARCHAR(100) NOT NULL,
-    sede_player INT,
-    password_player CHAR(64),
-    team_player INT,
-    FOREIGN KEY (sede_player) REFERENCES sedi(id_sede),
-    FOREIGN KEY (team_player) REFERENCES teams(id_team)
-);
-
 -- Create table "teams"
 CREATE TABLE teams (
     id_team INT AUTO_INCREMENT PRIMARY KEY,
@@ -40,6 +29,16 @@ CREATE TABLE teams (
     FOREIGN KEY (uni5_team) REFERENCES sedi(id_sede)
 );
 
+-- Create table "players"
+CREATE TABLE players (
+    id_player INT AUTO_INCREMENT PRIMARY KEY,
+    name_player VARCHAR(100) NOT NULL,
+    sede_player INT,
+    password_player CHAR(64),
+    team_player INT,
+    FOREIGN KEY (sede_player) REFERENCES sedi(id_sede),
+    FOREIGN KEY (team_player) REFERENCES teams(id_team)
+);
 -- Create table "points"
 CREATE TABLE points (
     id_point INT AUTO_INCREMENT PRIMARY KEY,
@@ -96,3 +95,11 @@ VALUES
     ('unito', 'Università di Torino', '/static/web/loghi/unito'),
     ('unirc', 'Università Mediterranea di Reggio Calabria', '/static/web/loghi/unirc'),
     ('univpm', 'Università Politecnica delle Marche', '/static/web/loghi/univpm');
+
+
+INSERT INTO bonus (description_bonus, value_bonus)
+VALUES
+    ("Bonus 1",10),
+    ("Bonus 2",20),
+    ("Malus 1",-10),
+    ("Malus 2",-20);

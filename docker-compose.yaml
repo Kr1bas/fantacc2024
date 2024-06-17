@@ -2,8 +2,7 @@ services:
   fantacc:
     image: fantacc
     build: ./app/
-    environment:
-      TZ: "Europe/Rome"
+    env_file: "./.env"
     restart: unless-stopped
     depends_on:
       - db
@@ -27,11 +26,7 @@ services:
     volumes:
       - "./db/data:/var/lib/mysql:Z"
       - "./db/init:/docker-entrypoint-initdb.d"
-    environment:
-      MYSQL_ROOT_PASSWORD: "cb2926acf7ed830441b0e69f50934f4b"
-      MYSQL_DATABASE: fantacc
-      MYSQL_USER: fantacc
-      MYSQL_PASSWORD: "7cd970b0103104b335bcf275d8ec1391"
+    env_file: "./.env"
     networks:
       - backend
 

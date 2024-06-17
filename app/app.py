@@ -8,24 +8,38 @@ from sqlalchemy import *
 from sqlalchemy.orm import sessionmaker,relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
+import os
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder='/opt/fantacc/templates')
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 
 # Database setup with SQLAlchemy (example with MariaDB)
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://fantacc:7cd970b0103104b335bcf275d8ec1391@db/fantacc'
+SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
 engine = create_engine(SQLALCHEMY_DATABASE_URI, echo=True)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
 # Define ORM class for players table
+class Sede(Base):
+    __tablename__ = 'sedi'
+    id_sede = Column(Integer, primary_key=True)
+    tag_sede = Column(String(20), nullable=False)
+    full_name_sede = Column(String(100), nullable=False)
+    logo_sede = Column(String(50))
+
+class Bonus(Base):
+    __tablename__ = 'bonus'
+    id_bonus = Column(Integer, primary_key=True)
+    description_bonus = Column(String(255), nullable=False)
+    value_bonus = Column(Integer, nullable=False)
+
 class Player(Base):
     __tablename__ = 'players'
     id_player = Column(Integer, primary_key=True)
     name_player = Column(String(100), nullable=False)
-    sede_player = Column(Integer, nullable=False)
+    sede_player = Column(Integer, ForeignKey('sedi.id_sede'))
     password_player = Column(String(64), nullable=False)
-    team_player = Column(Integer, ForeignKey('teams.id_team)'))
+    team_player = Column(Integer, ForeignKey('teams.id_team'))
     
     sede = relationship("Sede")
     team = relationship("Team")
@@ -46,19 +60,6 @@ class Team(Base):
     uni4 = relationship("Sede", foreign_keys=[uni4_team])
     uni5 = relationship("Sede", foreign_keys=[uni5_team])
 
-class Bonus(Base):
-    __tablename__ = 'bonus'
-    id_bonus = Column(Integer, primary_key=True)
-    description_bonus = Column(String(255), nullable=False)
-    value_bonus = Column(Integer, nullable=False)
-
-class Sede(Base):
-    __tablename__ = 'sedi'
-    id_sede = Column(Integer, primary_key=True)
-    tag_sede = Column(String(20), nullable=False)
-    full_name_sede = Column(String(100), nullable=False)
-    logo_sede = Column(String(50))
-
 class Point(Base):
     __tablename__ = 'points'
     id_point = Column(Integer, primary_key=True)
@@ -69,66 +70,11 @@ class Point(Base):
     bonus = relationship("Bonus")
     sede = relationship("Sede")
 
-
 # WTForm for login
 class LoginForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired()])
     submit = SubmitField('Login')
-
-# Route for Bonus page
-@app.route('/bonus')
-def bonus():
-    try:
-        session_db = Session()
-        bonuses = session_db.query(Bonus).all()
-        session_db.close()
-
-        return render_template('bonus.html', bonuses=bonuses)
-
-    except Exception as e:
-        flash('Error occurred while fetching bonus data.', 'error')
-        print(e)
-        return redirect(url_for('index'))
-
-
-# Route for Venues page
-@app.route('/venues')
-def venues():
-    try:
-        session_db = Session()
-
-        # Query all sedi (venues)
-        sedi = session_db.query(Sede).all()
-
-        # Prepare data structure to store bonus details per sede
-        venues_data = []
-        
-        # Iterate over each sede and find associated bonuses with calculated values
-        for sede in sedi:
-            bonuses = session_db.query(Point).filter_by(sede_id_point=sede.id_sede).all()
-            bonuses_data = []
-
-            for point in bonuses:
-                calculated_value = point.bonus.value_bonus * point.multiplier_point
-                bonuses_data.append({
-                    'description': point.bonus.description_bonus,
-                    'value': calculated_value
-                })
-
-            venues_data.append({
-                'sede': sede,
-                'bonuses': bonuses_data
-            })
-
-        session_db.close()
-
-        return render_template('venues.html', venues_data=venues_data)
-
-    except Exception as e:
-        flash('Error occurred while fetching venues data.', 'error')
-        print(e)
-        return redirect(url_for('scoreboard'))
 
 # Filter function for Jinja to determine row color based on value
 @app.template_filter('color_class')
@@ -154,8 +100,19 @@ class RegistrationForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
-        # Dynamically populate sede choices from database
-        self.sede.choices = [(str(sede.id_sede), sede.full_name_sede) for sede in Sede.query.all()]
+        session_db = Session()
+        # Dynamically populate sede choices from database session_db.query(Sede).all()
+        self.sede.choices = [(str(sede.id_sede), sede.full_name_sede) for sede in session_db.query(Sede).all()]
+
+# Form for team creation
+class TeamForm(FlaskForm):
+    name_team = StringField('Team Name', validators=[InputRequired(), Length(max=100)])
+    captain_team = SelectField('Captain', coerce=int)
+    uni2_team = SelectField('Member 2', coerce=int)
+    uni3_team = SelectField('Member 3', coerce=int)
+    uni4_team = SelectField('Member 4', coerce=int)
+    uni5_team = SelectField('Member 5', coerce=int)
+    submit = SubmitField('Create Team')
 
 # Sanitization function using bleach
 def sanitize_input(input_str):
@@ -168,8 +125,12 @@ def sanitize_input(input_str):
 def hash_password(password):
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
+# Hashing function using SHA-256
+def hash_password(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
 # Route for registration page
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -236,14 +197,14 @@ def login():
     return render_template('login.html', form=form)
 
 # Example route for index or dashboard page (to be added to app.py)
-@app.route('/')
+@app.route('/index')
 def index():
     if 'user_id' in session:
         user_name = session['user_name']
         user_sede = session['user_sede']
         return render_template('index.html', user_name=user_name, user_sede=user_sede)
     else:
-        return redirect(url_for('scoreboard.html'))  # Redirect to login page if user not logged in
+        return redirect(url_for('scoreboard'))  # Redirect to login page if user not logged in
 
 # Example route for the scoreboard page (to be added to app.py)
 @app.route('/scoreboard')
@@ -262,20 +223,6 @@ def logout():
     flash('You have been logged out.', 'info')
     return redirect(url_for('login'))  # Redirect to login page after logout
 
-# Hashing function using SHA-256
-def hash_password(password):
-    return hashlib.sha256(password.encode('utf-8')).hexdigest()
-
-# Form for team creation
-class TeamForm(FlaskForm):
-    name_team = StringField('Team Name', validators=[InputRequired(), Length(max=100)])
-    captain_team = SelectField('Captain', coerce=int)
-    uni2_team = SelectField('Member 2', coerce=int)
-    uni3_team = SelectField('Member 3', coerce=int)
-    uni4_team = SelectField('Member 4', coerce=int)
-    uni5_team = SelectField('Member 5', coerce=int)
-    submit = SubmitField('Create Team')
-
 # Route for Team Management page
 @app.route('/teams', methods=['GET', 'POST'])
 def teams():
@@ -283,7 +230,7 @@ def teams():
         session_db = Session()
 
         # Fetch current player's details
-        player_id = session['player_id']
+        player_id = session['user_id']
         player = session_db.query(Player).filter_by(id_player=player_id).first()
 
         # If player already has a team, redirect to team view page
@@ -350,6 +297,56 @@ def team_view(team_id):
         flash('Error occurred while fetching team details.', 'error')
         print(e)
         return redirect(url_for('index'))
+
+# Route for Bonus page
+@app.route('/bonus')
+def bonus():
+    try:
+        session_db = Session()
+        bonuses = session_db.query(Bonus).all()
+        session_db.close()
+
+        return render_template('bonus.html', bonuses=bonuses)
+
+    except Exception as e:
+        flash('Error occurred while fetching bonus data.', 'error')
+        print(e)
+        return redirect(url_for('index'))
+
+# Route for Venues page
+@app.route('/venues')
+def venues():
+    try:
+        session_db = Session()
+        # Query all sedi (venues)
+        sedi = session_db.query(Sede).all()
+        # Prepare data structure to store bonus details per sede
+        venues_data = []
+        # Iterate over each sede and find associated bonuses with calculated values
+        for sede in sedi:
+            bonuses = session_db.query(Point).filter_by(sede_id_point=sede.id_sede).all()
+            bonuses_data = []
+
+            for point in bonuses:
+                calculated_value = point.bonus.value_bonus * point.multiplier_point
+                bonuses_data.append({
+                    'description': point.bonus.description_bonus,
+                    'value': calculated_value
+                })
+
+            venues_data.append({
+                'sede': sede,
+                'bonuses': bonuses_data
+            })
+
+        session_db.close()
+
+        return render_template('venues.html', venues_data=venues_data)
+
+    except Exception as e:
+        flash('Error occurred while fetching venues data.', 'error')
+        print(e)
+        return redirect(url_for('scoreboard'))
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)  # Create database tables based on Base metadata
