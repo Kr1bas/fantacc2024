@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Teams{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Create Your Team</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.name_team.label(class="form-label") }}
+                {{ form.name_team(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.captain_team.label(class="form-label") }}
+                {{ form.captain_team(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.uni2_team.label(class="form-label") }}
+                {{ form.uni2_team(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.uni3_team.label(class="form-label") }}
+                {{ form.uni3_team(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.uni4_team.label(class="form-label") }}
+                {{ form.uni4_team(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.uni5_team.label(class="form-label") }}
+                {{ form.uni5_team(class="form-control") }}
+            </div>
+            <button type="submit" class="btn btn-primary">Create Team</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

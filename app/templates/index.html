@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-4">Welcome, {{ user_name }}</h2>
+        <p>Your Sede: {{ user_sede }}</p>
+        <!-- Add more content as needed -->
+    </div>
+</div>
+{% endblock %}

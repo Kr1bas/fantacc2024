@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Bonus{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h2 class="mb-4">Bonus</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bonus in bonuses %}
+                <tr class="{{ bonus.value_bonus|color_class }}">
+                    <td>{{ bonus.description_bonus }}</td>
+                    <td>{{ bonus.value_bonus }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Scoreboard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Scoreboard</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Team Name</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, team in enumerate(teams, start=1) %}
+                <tr>
+                    <td>{{ index }}</td>
+                    <td>{{ team.name_team }}</td>
+                    <td>{{ team.points }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Venues{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h2 class="mb-4">Venues</h2>
+        {% for venue in venues_data %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>{{ venue.sede.full_name_sede }}</h4>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bonus in venue.bonuses %}
+                        <tr>
+                            <td>{{ bonus.description }}</td>
+                            <td>{% if bonus.value > 0 %}<span class="text-success">{{ bonus.value }}</span>{% elif bonus.value < 0 %}<span class="text-danger">{{ bonus.value }}</span>{% else %}{{ bonus.value }}{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

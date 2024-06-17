@@ -1,0 +1,58 @@
+services:
+  fantacc:
+    image: fantacc
+    environment:
+      TZ: "Europe/Rome"
+    restart: unless-stopped
+    depends_on:
+      - db
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_default
+      - traefik.http.routers.fantacc.rule=Host(`fantacc.kribas.org`)
+      - traefik.http.routers.fantacc.entrypoints=websecure
+      - traefik.http.routers.fantacc.tls.certresolver=letsencrypt
+      - traefik.http.services.fantacc-service.loadbalancer.server.port=5000
+      - traefik.http.services.fantacc-service.loadbalancer.server.scheme=http
+    networks:
+      - traefik
+      - backend
+
+  db:
+    image: mariadb
+    restart: unless-stopped
+    volumes:
+      - "./db/data:/var/lib/mysql:Z"
+      - "./db/init:/docker-entrypoint-initdb.d"
+    environment:
+      MYSQL_ROOT_PASSWORD: "cb2926acf7ed830441b0e69f50934f4b"
+      MYSQL_DATABASE: fantacc
+      MYSQL_USER: fantacc
+      MYSQL_PASSWORD: "7cd970b0103104b335bcf275d8ec1391"
+    networks:
+      - backend
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    depends_on:
+      - db
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_default
+      - traefik.http.routers.adminer.rule=Host(`adminer-fantacc.kribas.org`)
+      - traefik.http.routers.adminer.entrypoints=websecure
+      - traefik.http.routers.adminer.tls.certresolver=letsencrypt
+      - traefik.http.services.adminer-service.loadbalancer.server.port=5000
+      - traefik.http.services.adminer-service.loadbalancer.server.scheme=http
+    networks:
+      - traefik
+      - backend
+      
+networks:
+  traefik:
+    external:
+      name:
+        traefik_default
+  backend:
+    internal: true
