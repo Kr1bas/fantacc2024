@@ -13,7 +13,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 
 # Database setup with SQLAlchemy (example with MariaDB)
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://your_username:your_password@your_host/your_database_name'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://fantacc:7cd970b0103104b335bcf275d8ec1391@db/fantacc'
 engine = create_engine(SQLALCHEMY_DATABASE_URI, echo=True)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()

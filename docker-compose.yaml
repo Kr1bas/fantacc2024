@@ -1,19 +1,22 @@
 services:
   fantacc:
     image: fantacc
+    build: ./app/
     environment:
       TZ: "Europe/Rome"
     restart: unless-stopped
     depends_on:
       - db
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=traefik_default
-      - traefik.http.routers.fantacc.rule=Host(`fantacc.kribas.org`)
-      - traefik.http.routers.fantacc.entrypoints=websecure
-      - traefik.http.routers.fantacc.tls.certresolver=letsencrypt
-      - traefik.http.services.fantacc-service.loadbalancer.server.port=5000
-      - traefik.http.services.fantacc-service.loadbalancer.server.scheme=http
+    ports:
+      - 5000:5000
+    #labels:
+    #  - traefik.enable=true
+    #  - traefik.docker.network=traefik_default
+    #  - traefik.http.routers.fantacc.rule=Host(`fantacc.kribas.org`)
+    #  - traefik.http.routers.fantacc.entrypoints=websecure
+    #  - traefik.http.routers.fantacc.tls.certresolver=letsencrypt
+    #  - traefik.http.services.fantacc-service.loadbalancer.server.port=5000
+    #  - traefik.http.services.fantacc-service.loadbalancer.server.scheme=http
     networks:
       - traefik
       - backend
@@ -37,22 +40,25 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=traefik_default
-      - traefik.http.routers.adminer.rule=Host(`adminer-fantacc.kribas.org`)
-      - traefik.http.routers.adminer.entrypoints=websecure
-      - traefik.http.routers.adminer.tls.certresolver=letsencrypt
-      - traefik.http.services.adminer-service.loadbalancer.server.port=5000
-      - traefik.http.services.adminer-service.loadbalancer.server.scheme=http
+    ports:
+      - 8080:8080
+    #labels:
+    #  - traefik.enable=true
+    #  - traefik.docker.network=traefik_default
+    #  - traefik.http.routers.adminer.rule=Host(`adminer-fantacc.kribas.org`)
+    #  - traefik.http.routers.adminer.entrypoints=websecure
+    #  - traefik.http.routers.adminer.tls.certresolver=letsencrypt
+    #  - traefik.http.services.adminer-service.loadbalancer.server.port=5000
+    #  - traefik.http.services.adminer-service.loadbalancer.server.scheme=http
     networks:
       - traefik
       - backend
       
 networks:
-  traefik:
-    external:
-      name:
-        traefik_default
+  #traefik:
+  #  external:
+  #    name:
+  #      traefik_default
   backend:
     internal: true
+  traefik:
