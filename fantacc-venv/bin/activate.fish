@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/kribas/fantacc2024/fantacc-venv"
+set -gx VIRTUAL_ENV "/Users/kribas/Documents/CCIT/fantac2024/fantacc-venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

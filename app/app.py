@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, flash, session
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField,SelectField
+from wtforms import StringField, PasswordField, SubmitField,SelectField,RadioField,widgets,SelectMultipleField
 from wtforms.validators import InputRequired, Length, EqualTo
 import hashlib
 import bleach
@@ -89,36 +89,65 @@ def color_class(value):
 # WTForm for registration
 class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[InputRequired()])
-    sede = SelectField('Sede', validators=[InputRequired()])
+    
     password = PasswordField('Password', validators=[
         InputRequired(),
         Length(min=6, message='Password must be at least 6 characters long'),
         EqualTo('confirm_password', message='Passwords must match')
     ])
     confirm_password = PasswordField('Confirm Password', validators=[InputRequired()])
+    sede = RadioField('Scegli la tua sede', validators=[InputRequired()])
     submit = SubmitField('Register')
 
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
         session_db = Session()
         # Dynamically populate sede choices from database session_db.query(Sede).all()
-        self.sede.choices = [(str(sede.id_sede), sede.full_name_sede) for sede in session_db.query(Sede).all()]
+        self.sede.choices = [(str(sede.id_sede), sede.full_name_sede,sede.logo_sede) for sede in session_db.query(Sede).all()]
 
-# Form for team creation
-class TeamForm(FlaskForm):
+class NewTeamForm(FlaskForm):
     name_team = StringField('Team Name', validators=[InputRequired(), Length(max=100)])
-    captain_team = SelectField('Captain', coerce=int)
-    uni2_team = SelectField('Member 2', coerce=int)
-    uni3_team = SelectField('Member 3', coerce=int)
-    uni4_team = SelectField('Member 4', coerce=int)
-    uni5_team = SelectField('Member 5', coerce=int)
-    submit = SubmitField('Create Team')
+    universities = SelectMultipleField('Scegli le tue università',option_widget=widgets.CheckboxInput(),widget=widgets.ListWidget(prefix_label=False),coerce=int)
+    submit = SubmitField('Submit')
+
+    def __init__(self, *args, **kwargs):
+        super(NewTeamForm, self).__init__(*args, **kwargs)
+        session_db = Session()
+        # Dynamically populate sede choices from database session_db.query(Sede).all()
+        sedi_list = session_db.query(Sede).all()
+        self.universities.choices = [(str(sede.id_sede), sede.full_name_sede,sede.logo_sede) for sede in sedi_list if sede.id_sede != session['user_sede']]
+
+class CaptainForm(FlaskForm):
+    capitano = RadioField('Scegli il tuo capitano', validators=[InputRequired()])
+    submit = SubmitField('Submit')
+
+    def __init__(self, *args, **kwargs):
+        super(CaptainForm, self).__init__(*args, **kwargs)
+        session_db = Session()
+        # Dynamically populate sede choices from database session_db.query(Sede).all()
+        sedi_list = session_db.query(Sede).all()
+        self.capitano.choices = [(str(sede.id_sede), sede.full_name_sede,sede.logo_sede) for sede in sedi_list if sede.id_sede != session['user_sede']]
+
+class MyForm(FlaskForm):
+    options = SelectMultipleField('Choose Options', choices=[
+        ('value1', 'Option 1'),
+        ('value2', 'Option 2'),
+        ('value3', 'Option 3'),
+        ('value4', 'Option 4'),
+        ('value5', 'Option 5'),
+        ('value6', 'Option 6'),
+        ('value7', 'Option 7'),
+        ('value8', 'Option 8')
+    ], option_widget=widgets.CheckboxInput(), widget=widgets.ListWidget(prefix_label=False))
+    submit = SubmitField('Submit')
+
+
 
 # Sanitization function using bleach
 def sanitize_input(input_str):
     # Allow only specific HTML tags and attributes as needed
     # Example: Allow <b> and <i> tags
-    cleaned_input = bleach.clean(input_str, tags=['b', 'i'], attributes={})
+    cleaned_input = bleach.clean(input_str, tags=[], attributes={})
     return cleaned_input.strip()
 
 # Hashing function using SHA-256
@@ -150,7 +179,7 @@ def register():
             session.execute(insert_query, {'name': name, 'sede_id': sede_id, 'hashed_password': hashed_password})
             session.commit()
             
-            flash(f'Registration successful for {name} at {form.sede.choices[int(form.sede.data)][1]}!', 'success')
+            flash(f'Registration successful for {name} at {form.sede.choices[int(form.sede.data)-1][1]}!', 'success')
             return redirect(url_for('register'))  # Redirect to registration page after successful registration
         
         except Exception as e:
@@ -202,7 +231,12 @@ def index():
     if 'user_id' in session:
         user_name = session['user_name']
         user_sede = session['user_sede']
-        return render_template('index.html', user_name=user_name, user_sede=user_sede)
+        form = MyForm()
+        if form.validate_on_submit():
+            selected_options = form.options.data
+            print(f'Selected options: {selected_options}')
+        
+        return render_template('index.html', user_name=user_name, user_sede=user_sede,form=form)
     else:
         return redirect(url_for('scoreboard'))  # Redirect to login page if user not logged in
 
@@ -224,79 +258,146 @@ def logout():
     return redirect(url_for('login'))  # Redirect to login page after logout
 
 # Route for Team Management page
-@app.route('/teams', methods=['GET', 'POST'])
-def teams():
+@app.route('/team', methods=['GET', 'POST'])
+def team():
     try:
         session_db = Session()
-
         # Fetch current player's details
         player_id = session['user_id']
         player = session_db.query(Player).filter_by(id_player=player_id).first()
-
         # If player already has a team, redirect to team view page
         if player.team_player:
             team_id = player.team_player
+            flash(team_id,"warning")
             session_db.close()
             return redirect(url_for('team_view', team_id=team_id))
-
         # Get list of sedi (venues) for team members selection
-        sedi_list = session_db.query(Sede).all()
-
         # Populate choices for SelectFields in TeamForm
-        form = TeamForm()
-        form.captain_team.choices = [(sede.id_sede, sede.full_name_sede) for sede in sedi_list]
-        form.uni2_team.choices = [(sede.id_sede, sede.full_name_sede) for sede in sedi_list]
-        form.uni3_team.choices = [(sede.id_sede, sede.full_name_sede) for sede in sedi_list]
-        form.uni4_team.choices = [(sede.id_sede, sede.full_name_sede) for sede in sedi_list]
-        form.uni5_team.choices = [(sede.id_sede, sede.full_name_sede) for sede in sedi_list]
+        form = NewTeamForm()
+        if session.get('temp_set'):
+            session['temp_set'] = False
+            session['temp_name'] = None
+            session['temp_team'] = None
 
         if form.validate_on_submit():
-            # Create new team and update player's team
-            new_team = Team(
-                name_team=form.name_team.data,
-                captain_team=form.captain_team.data,
-                uni2_team=form.uni2_team.data,
-                uni3_team=form.uni3_team.data,
-                uni4_team=form.uni4_team.data,
-                uni5_team=form.uni5_team.data
-            )
-            session_db.add(new_team)
-            session_db.flush()  # Flush to get the new team id
-
-            # Update player's team
-            player.team_player = new_team.id_team
-            session_db.commit()
-
-            flash('Team created successfully!', 'success')
-            session_db.close()
-
-            return redirect(url_for('team_view', team_id=new_team.id_team))
-
+            if len(form.universities.data) != 5:
+                flash('Il team deve essere composto da 5 università!', 'danger')
+                session_db.close()
+                return render_template('teams.html', form=form)
+            
+            if session["user_sede"] in form.universities.data:
+                flash('Non puoi scegliere la tua sede!', 'danger')
+                session_db.close()
+                return render_template('teams.html', form=form)
+            
+            name = sanitize_input(form.name_team.data)
+            if len(name.strip()) < 1:
+                flash('Nome team non valido!', 'danger')
+                session_db.close()
+                return render_template('teams.html', form=form)\
+            
+            session['temp_set'] = True
+            session['temp_name'] = form.name_team.data
+            session['temp_team'] = form.universities.data
+            return redirect(url_for('cap'))
+    
         session_db.close()
         return render_template('teams.html', form=form)
 
     except Exception as e:
         flash('Error occurred while managing teams.', 'error')
-        print(e)
+        print(e.__str__())
+        session['temp_set'] = False
+        session['temp_name'] = None
+        session['temp_team'] = None
         return redirect(url_for('index'))
+
+@app.route('/cap', methods=['GET', 'POST'])
+def cap():
+    try:
+        session_db = Session()
+        player_id = session.get('user_id')
+        player = session_db.query(Player).filter_by(id_player=player_id).first()
+
+        if player.team_player:
+            flash('Player already has a team', 'danger')
+            team_id = player.team_player
+            session_db.close()
+            return redirect(url_for('team_view', team_id=team_id))
+
+        captain_form = CaptainForm()
+
+        if not session.get('temp_set'):
+            return redirect(url_for('team'))
+
+        if captain_form.validate_on_submit():
+            session['temp_team'] = [x for x in session['temp_team'] if x !=captain_form.capitano.data]
+            new_team = Team(
+                name_team=session['temp_name'],
+                captain_team=captain_form.capitano.data,
+                uni2_team=session['temp_team'][0],
+                uni3_team=session['temp_team'][1],
+                uni4_team=session['temp_team'][2],
+                uni5_team=session['temp_team'][3]
+            )
+            session_db.add(new_team)
+            session_db.flush()
+            player.team_player = new_team.id_team
+            session_db.commit()
+            new_team = session_db.merge(new_team)
+            flash('Team created successfully', 'success')
+            
+            session_db.close()
+            session['temp_set'] = False
+            session['temp_name'] = None
+            session['temp_team'] = None
+            return redirect(url_for('team_view', team_id=new_team.id_team))
+
+        # Add validation error messages
+        if captain_form.errors:
+            for field, errors in captain_form.errors.items():
+                for error in errors:
+                    flash(f"Error in {getattr(captain_form, field).label.text}: {error}", 'danger')
+
+        sedi_list = session_db.query(Sede).all()
+
+        if not session.get('temp_team'):
+            return redirect(url_for('team'))
+
+        captain_form.capitano.choices = [
+            (str(sede.id_sede), sede.full_name_sede, sede.logo_sede)
+            for sede in sedi_list if sede.id_sede in session['temp_team']
+        ]
+
+        return render_template('captain.html', form=captain_form)
+
+    except Exception as e:
+        flash('Error occurred while managing teams.', 'error')
+        print(str(e), 'error')
+        session['temp_set'] = False
+        session['temp_name'] = None
+        session['temp_team'] = None
+        return redirect(url_for('index'))
+    finally:
+        session_db.close()
 
 # Route for Team View page
 @app.route('/teams/<int:team_id>')
 def team_view(team_id):
     try:
         session_db = Session()
-
+        flash(team_id)
         # Fetch team details
         team = session_db.query(Team).filter_by(id_team=team_id).first()
-
-        session_db.close()
-
+        flash(team,"secondary")
         return render_template('team_view.html', team=team)
 
     except Exception as e:
         flash('Error occurred while fetching team details.', 'error')
         print(e)
         return redirect(url_for('index'))
+    finally:
+        session_db.close()
 
 # Route for Bonus page
 @app.route('/bonus')
@@ -305,7 +406,6 @@ def bonus():
         session_db = Session()
         bonuses = session_db.query(Bonus).all()
         session_db.close()
-
         return render_template('bonus.html', bonuses=bonuses)
 
     except Exception as e:
@@ -338,15 +438,14 @@ def venues():
                 'sede': sede,
                 'bonuses': bonuses_data
             })
-
-        session_db.close()
-
         return render_template('venues.html', venues_data=venues_data)
 
     except Exception as e:
         flash('Error occurred while fetching venues data.', 'error')
         print(e)
         return redirect(url_for('scoreboard'))
+    finally:
+        session_db.close()
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)  # Create database tables based on Base metadata

@@ -3,6 +3,23 @@
 {% block title %}Manage Teams{% endblock %}
 
 {% block content %}
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const maxSelection = 5; // Limit the number of selections
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        
+        checkboxes.forEach((checkbox) => {
+            checkbox.addEventListener('change', (e) => {
+                let checkedCount = document.querySelectorAll('input[type="checkbox"]:checked').length;
+                
+                if (checkedCount > maxSelection) {
+                    e.target.checked = false; // Deselect the checkbox
+                    alert(`You can only select up to ${maxSelection} options.`);
+                }
+            });
+        });
+    });
+</script>
 <div class="row justify-content-center">
     <div class="col-md-8">
         <h2 class="mb-4">Create Your Team</h2>
@@ -12,28 +29,26 @@
                 {{ form.name_team.label(class="form-label") }}
                 {{ form.name_team(class="form-control") }}
             </div>
-            <div class="form-group">
-                {{ form.captain_team.label(class="form-label") }}
-                {{ form.captain_team(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form.uni2_team.label(class="form-label") }}
-                {{ form.uni2_team(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form.uni3_team.label(class="form-label") }}
-                {{ form.uni3_team(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form.uni4_team.label(class="form-label") }}
-                {{ form.uni4_team(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form.uni5_team.label(class="form-label") }}
-                {{ form.uni5_team(class="form-control") }}
+            
+            <div class="form-group container py-7">
+                <div class="row justify-content-center">
+                    {{ form.universities.label(class="form-label col-12") }}<br/>
+                    {% for choice_value, choice_label, choice_img in form.universities.choices %}
+                    <div class="col-3 col-md-4 col-lg-4 col-xs-4 mt-3 text-center">
+                        <input type="checkbox" id="{{ form.universities.id }}_{{ loop.index }}" name="{{ form.universities.name }}" value="{{ choice_value }}" {% if form.universities.data == choice_value %}checked{% endif %}>
+                        <label for="{{ form.universities.id }}_{{ loop.index }}" >
+                             <img src="{{choice_img}}" alt="{{choice_label}}" class="radio-image img-fluid" loading="lazy" width="120" height="120" decoding="async" style="color: transparent; width: 100%; height: auto;">
+                            <p class="text-center mt-3">{{ choice_label }}</p>
+                        </label><br>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
             <button type="submit" class="btn btn-primary">Create Team</button>
+            
         </form>
+        
+        
     </div>
 </div>
 {% endblock %}

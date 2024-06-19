@@ -1,4 +1,4 @@
-#!/home/kribas/fantacc2024/fantacc-venv/bin/python3
+#!/Users/kribas/Documents/CCIT/fantac2024/fantacc-venv/bin/python3.10
 # -*- coding: utf-8 -*-
 import re
 import sys

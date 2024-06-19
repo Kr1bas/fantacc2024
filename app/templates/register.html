@@ -12,9 +12,20 @@
                 {{ form.name.label(class="form-label") }}
                 {{ form.name(class="form-control") }}
             </div>
-            <div class="form-group">
-                {{ form.sede.label(class="form-label") }}
-                {{ form.sede(class="form-control") }}
+            <div class="form-group container py-7">
+                
+                <div class="row justify-content-center">
+                    {{ form.sede.label(class="form-label col-12") }}<br/>
+                    {% for choice_value, choice_label, choice_img in form.sede.choices %}
+                    <div class="col-3 col-md-4 col-lg-4 col-xs-4 mt-3 text-center">
+                        <input type="radio" id="{{ form.sede.id }}_{{ loop.index }}" name="{{ form.sede.name }}" value="{{ choice_value }}" {% if form.sede.data == choice_value %}checked{% endif %}>
+                        <label for="{{ form.sede.id }}_{{ loop.index }}" >
+                             <img src="{{choice_img}}" alt="{{choice_label}}" class="radio-image img-fluid" loading="lazy" width="120" height="120" decoding="async" style="color: transparent; width: 100%; height: auto;">
+                            <p class="text-center mt-3">{{ choice_label }}</p>
+                        </label><br>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
             <div class="form-group">
                 {{ form.password.label(class="form-label") }}

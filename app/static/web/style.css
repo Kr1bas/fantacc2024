@@ -1,3 +1,39 @@
 li a {
     color: green;
 }
+    /* HIDE RADIO */
+    [type=radio] { 
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      /* IMAGE STYLES */
+      [type=radio] + label {
+        cursor: pointer;
+      }
+      
+      /* CHECKED STYLES */
+      [type=radio]:checked + label {
+        outline: 1px solid #27467488;
+        border-radius: 5px;
+      }
+    
+      [type=checkbox] { 
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      /* IMAGE STYLES */
+      [type=checkbox] + label {
+        cursor: pointer;
+      }
+      
+      /* CHECKED STYLES */
+      [type=checkbox]:checked + label {
+        outline: 1px solid #27467488;
+        border-radius: 5px;
+      }

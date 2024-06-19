@@ -7,7 +7,9 @@ services:
     depends_on:
       - db
     ports:
-      - 5000:5000
+      - 42069:5000
+    volumes:
+      - "./app:/opt/fantacc"
     #labels:
     #  - traefik.enable=true
     #  - traefik.docker.network=traefik_default

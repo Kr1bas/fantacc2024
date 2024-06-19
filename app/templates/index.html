@@ -10,4 +10,23 @@
         <!-- Add more content as needed -->
     </div>
 </div>
+<div class="container">
+    <h1>Select Options</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            {% for subfield in form.options %}
+                <div class="col-6 col-md-4 col-lg-3 mt-3 text-center">
+                    {{ subfield }}
+                    <label for="{{ subfield.id }}">
+                        <p>{{ subfield.label.text }}</p>
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="mt-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
 {% endblock %}
