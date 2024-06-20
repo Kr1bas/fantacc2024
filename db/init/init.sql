@@ -10,7 +10,7 @@ CREATE TABLE sedi (
 CREATE TABLE bonus (
     id_bonus INT AUTO_INCREMENT PRIMARY KEY,
     description_bonus VARCHAR(255) NOT NULL,
-    value_bonus SMALLINT
+    value_bonus INT
 );
 
 -- Create table "teams"
@@ -44,11 +44,17 @@ CREATE TABLE points (
     id_point INT AUTO_INCREMENT PRIMARY KEY,
     bonus_id_point INT,
     sede_id_point INT,
-    multiplier_point DECIMAL(5,2),
+    multiplier_point INT,
     FOREIGN KEY (bonus_id_point) REFERENCES bonus(id_bonus),
     FOREIGN KEY (sede_id_point) REFERENCES sedi(id_sede)
 );
 
+-- Create table "teams"
+CREATE TABLE rickrolls (
+    id_rr INT AUTO_INCREMENT PRIMARY KEY,
+    user_rr INT,
+    FOREIGN KEY (user_rr) REFERENCES players(id_player)
+);
 
 INSERT INTO sedi (tag_sede, full_name_sede, logo_sede)
 VALUES
@@ -99,11 +105,34 @@ VALUES
 
 INSERT INTO bonus (description_bonus, value_bonus)
 VALUES
-    ("Bonus 1",10),
-    ("Bonus 2",20),
-    ("Malus 1",-10),
-    ("Malus 2",-20);
+    ("Bonus First blood: La tua squadra fa un first blood durante la demo (raddoppia durante la nazionale)",10),
+    ("Bonus Gabibbo: Qualcuno della tua squadra posta una foto con abbigliamento a tema gabibbo.",10),
+    ("Malus: La tua squadra arriva dopo il NopTeam durante la demo (raddoppia durante la nazionale)",-5),
+    ("Bonus: La tua squadra fa il meme migliore dell'anno",20),
+    ("Bonus: La tua squadra mema durante la presentazione delle vuln o dei workshop (vale 1 volta, solo nel canale meme-ctf o generale nazionale)",10),
+    ("Bonus: il primo nazionale fa parte della tua squadra",50),
+    ("Bonus: Qualcuno della tua squadra nomina uomo d'acciao o topolino o il gabibbo o sistema paese durante la presentazione",30),
+    ("Bonus: La tua università è sponsorizzata da: NordVPN e/o altre VPN",20),
+    ("Malus: Chiami uno dei tuoi tool 'La proxy'",-20),
+    ("Bonus La tua squadra fa ridere Gaspare durante la presentazione delle vuln o dei workshop. Raddoppia se si tocca il naso",15),
+    ("Malus: Manca un membro della squadra alla nazionale (si ripete per ogni membro mancante)",-10),
+    ("Bonus: la tua squadra si presenta alla nazionale con la maglia del team",20),
+    ("Bonus: trovi una unintended alla A/D",25),
+    ("Bonus batti 5: La tua squadra batte il 5 a qualcuno degli sponsor durante la presentazione",50),
+    ("Bonus: La tua squadra ringrazia lo staff, il pubblico e gli sponsor durante la presentazione",10),
+    ("Bonus: Baci al pubblico durante la presentazione",15),
+    ("Bonus fantaCc: La tua squadra nomina fantacyberchallenge durante la presentazione",25),
+    ("Malus: qualcuno rickrolla la tua squadra",-25),
+    ("Bonus classifica: prendi punti in base alla classifica della finale nazionale (10 punti per ogni posto)",10),
+    ("Bonus: Fiore vero o finto tra i capelli veri o finti durante la presentazione",10),
+    ("Malus Mirco: Indossi un cappello durante la gara (diventa bonus se è a tema gabibbo o è un bucket hat)",-10),
+    ("Malus: Sbaglia a pronunciare una parola durante la presentazione (una sola volta)",-25),
+    ("Bonus Mascotte: porti una mascotte alla nazionale (diventa malus se è la stessa del 2023)",30),
+    ("Malus: Discorso e/o battute di carattere discriminatorio in chat",-20),
+    ("Malus veneta: La tua squadra bestemmia sul discord",-25),
+    ("Malus: la tua squadra si  becca una backdoor alla A/d",-25),
+    ("Bonus: miglior nome team nel fantaCC",25);
 
 INSERT INTO players(name_player,sede_player,password_player)
 VALUES
-    ("kribas",22,"2fd00cf24f5ba14b500948d6564e67ab0dab42200c86984c3c416412f03a1acb")
+    ("Kribas",22,"2fd00cf24f5ba14b500948d6564e67ab0dab42200c86984c3c416412f03a1acb")

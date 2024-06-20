@@ -4,26 +4,43 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-md-10">
         <h2 class="mb-4">Scoreboard</h2>
-        <table class="table">
+        <table id="myDataTable" class="table table-striped table-bordered" style="width:100%">
             <thead>
                 <tr>
-                    <th>Rank</th>
-                    <th>Team Name</th>
-                    <th>Points</th>
+                    <th>Score</th>
+                    <th>Name</th>
+                    <th>Capitano</th>
+                    <th>Membri</th>
                 </tr>
             </thead>
             <tbody>
-                {% for index, team in enumerate(teams, start=1) %}
+                {% for team in teams %}
                 <tr>
-                    <td>{{ index }}</td>
-                    <td>{{ team.name_team }}</td>
-                    <td>{{ team.points }}</td>
+                    <td>{{team.id_team|get_team_score}}</td>
+                    <td><a href="{{url_for('team_view',team_id=team.id_team)}}">{{team.name_team}}</a></td>
+                    <td><img src="{{team.captain.logo_sede}}" alt="{{team.captain.tag_sede}}" class="img-fluid" loading="lazy" width="80" height="80" decoding="async" style="color: transparent;"></td>
+                    <td><img src="{{team.uni2.logo_sede}}" alt="{{team.uni2.tag_sede}}" class="img-fluid" loading="lazy" width="80" height="80" decoding="async" style="color: transparent;">
+                    <img src="{{team.uni3.logo_sede}}" alt="{{team.uni3.tag_sede}}" class="img-fluid" loading="lazy" width="80" height="80" decoding="async" style="color: transparent;">
+                    <img src="{{team.uni4.logo_sede}}" alt="{{team.uni4.tag_sede}}" class="img-fluid" loading="lazy" width="80" height="80" decoding="async" style="color: transparent;">
+                    <img src="{{team.uni5.logo_sede}}" alt="{{team.uni5.tag_sede}}" class="img-fluid" loading="lazy" width="80" height="80" decoding="async" style="color: transparent;"></td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+// Initialize DataTable
+$('#myDataTable').DataTable({
+paging: true, // Enable pagination
+searching: true, // Enable search
+ordering: true, // Enable sorting
+info: true, // Show information
+lengthChange: false, // Disable the "Show X entries" dropdown
+});
+});
+</script>
 {% endblock %}

@@ -9,6 +9,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>Description</th>
                     <th>Value</th>
                 </tr>
@@ -16,6 +17,7 @@
             <tbody>
                 {% for bonus in bonuses %}
                 <tr class="{{ bonus.value_bonus|color_class }}">
+                    <td>{{loop.index}}</td>
                     <td>{{ bonus.description_bonus }}</td>
                     <td>{{ bonus.value_bonus }}</td>
                 </tr>

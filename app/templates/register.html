@@ -12,8 +12,15 @@
                 {{ form.name.label(class="form-label") }}
                 {{ form.name(class="form-control") }}
             </div>
+            <div class="form-group">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.confirm_password.label(class="form-label") }}
+                {{ form.confirm_password(class="form-control") }}
+            </div>
             <div class="form-group container py-7">
-                
                 <div class="row justify-content-center">
                     {{ form.sede.label(class="form-label col-12") }}<br/>
                     {% for choice_value, choice_label, choice_img in form.sede.choices %}
@@ -26,14 +33,6 @@
                     </div>
                     {% endfor %}
                 </div>
-            </div>
-            <div class="form-group">
-                {{ form.password.label(class="form-label") }}
-                {{ form.password(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form.confirm_password.label(class="form-label") }}
-                {{ form.confirm_password(class="form-control") }}
             </div>
             <button type="submit" class="btn btn-primary">Register</button>
         </form>

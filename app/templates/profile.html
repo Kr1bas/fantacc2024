@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile Details{% endblock %}
+
+{% block content %}
+<div class="containerjustify-content-center">
+    <h2 class="mb-4">Welcome, {{ player.name_player }}</h2>
+        <p>Your Sede: {{ player.sede.full_name_sede }} <img src="{{player.sede.logo_sede}}" alt="{{player.sede.full_name_sede}}" class="radio-image img-fluid" loading="lazy" width="80" height="80" decoding="async" style="color: transparent;"></p>
+    <div class="col-md-8">
+        <h2 class="mb-4">Your Team:</h2>
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-3 col-md-4 col-lg-4 col-xs-4 mt-3 text-center">
+                        <h4>{{ team.name_team }}</h4>
+                    </div>
+                    <div class="col-3 col-md-4 col-lg-4 col-xs-4 mt-3 text-center">
+                        <h5>{{team.id_team|get_team_score}} pts</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row justify-content-center card-title">
+                    <div class="col-3 col-md-4 col-lg-4 col-xs-4 mt-3 text-center border border-warning rounded">
+                        <img src="{{team.captain.logo_sede}}" alt="{{team.captain.full_name_sede}}" class="radio-image img-fluid" loading="lazy" width="120" height="120" decoding="async" style="color: transparent; width: 100%; height: auto;">
+                        <h5>{{team.captain.full_name_sede}}</h5>
+                        <h5>{{team.captain_team|get_uni_score}} pts</h5>
+                    </div>
+                </div>
+                <div class="row justify-content-center card-title border border-blue rounded">
+                    <div class="col-3 col-md-4 col-lg-4 col-xs-4 mt-3 text-center align-self-center">
+                        <img src="{{team.uni2.logo_sede}}" alt="{{team.uni2.full_name_sede}}" class="radio-image img-fluid" loading="lazy" width="120" height="120" decoding="async" style="color: transparent; width: 100%; height: auto;">
+                        <h5>{{team.uni2.full_name_sede}}</h5>
+                        <h5>{{team.uni2_team|get_uni_score}} pts</h5>
+                    </div>
+                    <div class="col-3 col-md-4 col-lg-4 col-xs-4 mt-3 text-center align-self-center">
+                        <img src="{{team.uni3.logo_sede}}" alt="{{team.uni3.full_name_sede}}" class="radio-image img-fluid" loading="lazy" width="120" height="120" decoding="async" style="color: transparent; width: 100%; height: auto;">
+                        <h5>{{team.uni3.full_name_sede}}</h5>
+                        <h5>{{team.uni3_team|get_uni_score}} pts</h5>
+                    </div>
+                    <div class="col-3 col-md-4 col-lg-4 col-xs-4 mt-3 text-center align-self-center">
+                        <img src="{{team.uni4.logo_sede}}" alt="{{team.uni4.full_name_sede}}" class="radio-image img-fluid" loading="lazy" width="120" height="120" decoding="async" style="color: transparent; width: 100%; height: auto;">
+                        <h5>{{team.uni4.full_name_sede}}</h5>
+                        <h5>{{team.uni4_team|get_uni_score}} pts</h5>
+                    </div>
+                    <div class="col-3 col-md-4 col-lg-4 col-xs-4 mt-3 text-center align-self-center">
+                        <img src="{{team.uni5.logo_sede}}" alt="{{team.uni5.full_name_sede}}" class="radio-image img-fluid" loading="lazy" width="120" height="120" decoding="async" style="color: transparent; width: 100%; height: auto;">
+                        <h5>{{team.uni5.full_name_sede}}</h5>
+                        <h5>{{team.uni5_team|get_uni_score}} pts</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

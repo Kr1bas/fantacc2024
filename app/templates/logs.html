@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Logs{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h2 class="mb-4">Logs</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Sede</th>
+                    <th>Description</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for point in points %}
+                <tr class="{{ point.multiplier_point*point.bonus.value_bonus|color_class }}">
+                    <td>{{loop.index}}</td>
+                    <td><img src="{{point.sede.logo_sede}}" alt="{{point.sede.tag_sede}}" class="img-fluid" loading="lazy" width="50" height="50" decoding="async" style="color: transparent;">{{point.sede.tag_sede}}</td>
+                    <td>{{ point.bonus.description_bonus }}</td>
+                    <td>{{ point.multiplier_point*point.bonus.value_bonus }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

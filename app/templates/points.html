@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Teams{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">Create Your Team</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.bonus.label(class="form-label") }}
+                {{ form.bonus(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.multiplier.label(class="form-label") }}
+                {{ form.multiplier(class="form-control") }}
+            </div>
+            
+            <div class="form-group container py-7">
+                <div class="row justify-content-center">
+                    {{ form.sedi.label(class="form-label col-12") }}<br/>
+                    {% for choice_value, choice_label, choice_img in form.sedi.choices %}
+                    <div class="col-4 col-md-2 col-lg-2 col-xs-2 mt-3 text-center">
+                        <input type="checkbox" id="{{ form.sedi.id }}_{{ loop.index }}" name="{{ form.sedi.name }}" value="{{ choice_value }}" {% if form.sedi.data == choice_value %}checked{% endif %}>
+                        <label for="{{ form.sedi.id }}_{{ loop.index }}" >
+                             <img src="{{choice_img}}" alt="{{choice_label}}" class="radio-image img-fluid" loading="lazy" width="100" height="100" decoding="async" style="color: transparent;">
+                            <p class="text-center mt-3">{{ choice_label }}</p>
+                        </label><br>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            
+        </form>
+        
+        
+    </div>
+</div>
+{% endblock %}
