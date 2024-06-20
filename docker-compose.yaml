@@ -6,20 +6,20 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-    ports:
-      - 42069:5000
+    # ports:
+    #   - 42069:5000
     volumes:
       - "./app:/opt/fantacc"
-    #labels:
-    #  - traefik.enable=true
-    #  - traefik.docker.network=traefik_default
-    #  - traefik.http.routers.fantacc.rule=Host(`fantacc.kribas.org`)
-    #  - traefik.http.routers.fantacc.entrypoints=websecure
-    #  - traefik.http.routers.fantacc.tls.certresolver=letsencrypt
-    #  - traefik.http.services.fantacc-service.loadbalancer.server.port=5000
-    #  - traefik.http.services.fantacc-service.loadbalancer.server.scheme=http
+    labels:
+     - traefik.enable=true
+     - traefik.docker.network=traefik_default
+     - traefik.http.routers.fantacc.rule=Host(`fantacc.kribas.org`)
+     - traefik.http.routers.fantacc.entrypoints=websecure
+     - traefik.http.routers.fantacc.tls.certresolver=letsencrypt
+     - traefik.http.services.fantacc-service.loadbalancer.server.port=5000
+     - traefik.http.services.fantacc-service.loadbalancer.server.scheme=http
     networks:
-      - traefik
+      - traefik_default
       - backend
 
   db:
@@ -37,25 +37,65 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-    ports:
-      - 8080:8080
-    #labels:
-    #  - traefik.enable=true
-    #  - traefik.docker.network=traefik_default
-    #  - traefik.http.routers.adminer.rule=Host(`adminer-fantacc.kribas.org`)
-    #  - traefik.http.routers.adminer.entrypoints=websecure
-    #  - traefik.http.routers.adminer.tls.certresolver=letsencrypt
-    #  - traefik.http.services.adminer-service.loadbalancer.server.port=5000
-    #  - traefik.http.services.adminer-service.loadbalancer.server.scheme=http
+    # ports:
+    #   - 8080:8080
+    labels:
+     - traefik.enable=true
+     - traefik.docker.network=traefik_default
+     - traefik.http.routers.adminer.rule=Host(`adminer-fantacc.kribas.org`)
+     - traefik.http.routers.adminer.entrypoints=websecure
+     - traefik.http.routers.adminer.tls.certresolver=letsencrypt
+     - traefik.http.services.adminer-service.loadbalancer.server.port=5000
+     - traefik.http.services.adminer-service.loadbalancer.server.scheme=http
+     - traefik.http.routers.adminer.middlewares=traefik-auth
     networks:
-      - traefik
+      - traefik_default
       - backend
+
+  traefik:
+    image: "traefik:3.10"
+    container_name: "traefik"
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - --api.insecure=true
+      - --global.checkNewVersion=true
+      - --log.level=ERROR
+      - --log.filePath=/logs/traefik.log
+      - --accesslog.filepath=/logs/access.log
+      - --accesslog.format=json
+      - --accesslog.bufferingsize=100
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.allowEmptyServices=true
+      - --entryPoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entryPoints.web.http.redirections.entryPoint.to=websecure
+      - --entryPoints.web.http.redirections.entryPoint.scheme=https
+      - --certificatesResolvers.letsencrypt.acme.email=mirco.picca@laser.di.unimi.it
+      - --certificatesResolvers.letsencrypt.acme.storage=acme/acme.json
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefikdash.rule=Host(`traefik-mirco.laser.di.unimi.it`)
+      - traefik.http.routers.traefikdash.entrypoints=websecure
+      - traefik.http.routers.traefikdash.tls.certresolver=letsencrypt
+      - traefik.http.services.traefikdash-service.loadbalancer.server.port=8080
+      - traefik.http.services.traefikdash-service.loadbalancer.server.scheme=http
+      - traefik.http.routers.traefikdash.middlewares=traefik-auth
+      - traefik.http.middlewares.traefik-auth.basicauth.users=laser:$$2y$$05$$ZNecGfM600gkPwZ7L8abXOsl8eHtAkoXqzlO8D.ZczL771MKJnfNu
+
+    restart: always
+    volumes:
+      - /opt/traefik/acme:/acme
+      - /opt/traefik/logs:/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_default
       
 networks:
-  #traefik:
-  #  external:
-  #    name:
-  #      traefik_default
+  traefik_default:
+    internal: true
   backend:
     internal: true
-  traefik:
